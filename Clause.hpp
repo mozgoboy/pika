@@ -30,7 +30,7 @@ public:
 			{
 				// Здесь долэна быть какая-то обработка при условии что SubClause это astNodeLabel, но пока не понятно какая
 			}
-			LabeledClause X{ subClause, astNodeLabel };
+			LabeledClause X( subClause, astNodeLabel );
 			this->labeledSubClauses.push_back(X);
 		}
 	}
