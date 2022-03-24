@@ -87,7 +87,7 @@ class Seq : public Clause {
     
     Match match(MemoTable memoTable, MemoKey memoKey, string input) {
         vector<Match> subClauseMatches = nullptr;
-        currStartPos = memoKey.startPos;
+        auto currStartPos = memoKey.startPos;
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
             subClause = labeledSubClauses[subClauseIdx].clause;
             subClauseMemoKey = MemoKey(subClause, currStartPos);

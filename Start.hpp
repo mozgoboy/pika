@@ -24,7 +24,7 @@ public:
 	}
 	//Функция выше пока не ясно как работает
 
-	String toString() 
+	string toString() 
 	{
 		if (toStringCached == "")
 		{
