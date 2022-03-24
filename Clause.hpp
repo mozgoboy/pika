@@ -45,7 +45,7 @@ public:
 		rules.pop_back(rule);
 	}
 
-	void AddSeedParentClause()
+	void addAsSeedParentClause()
 	{
 		vector<Clause> added;
 		for (auto &x : labeledSubClauses)
