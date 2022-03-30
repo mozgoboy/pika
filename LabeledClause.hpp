@@ -40,6 +40,8 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 /** A container for grouping a subclause together with its AST node label. */
 class LabeledClause {
 public:

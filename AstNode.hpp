@@ -42,6 +42,8 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 /** A node in the Abstract Syntax Tree (AST). */
 class ASTNode {
 public:
