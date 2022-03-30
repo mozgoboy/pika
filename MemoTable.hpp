@@ -4,7 +4,6 @@
 #include "NotFollowedBy.hpp";
 #include "Grammar.hpp";
 #include "IntervalUnion.hpp";
-#include <boost/algorithm/string/join.hpp>
 #include <queue>;
 
 class MemoTable

@@ -66,4 +66,5 @@ public:
             toStringCached = astNodeLabel + ":(" + labeledSubClauses[0]->toString() + ")";
         }
         return toStringCached;
+    }
 };
