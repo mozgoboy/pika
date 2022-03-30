@@ -43,15 +43,15 @@
 /** A container for grouping a subclause match together with its AST node label. */
 class LabeledMatch {
 public: 
-    Match match;
+    Match* match;
     string astNodeLabel;
 
-    LabeledMatch(Match match, string astNodeLabel) {
-        this.match = match;
-        this.astNodeLabel = astNodeLabel;
+    LabeledMatch(Match* match, string astNodeLabel) {
+        this->match = match;
+        this->astNodeLabel = astNodeLabel;
     }
 
     string toString() {
-        return astNodeLabel == null ? match.toString() : astNodeLabel + ":(" + match.toString() + ")";
+        return astNodeLabel.empty() ? match->toString() : astNodeLabel + ":(" + match->toString() + ")";
     }
 }

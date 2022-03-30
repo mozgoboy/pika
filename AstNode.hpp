@@ -32,8 +32,8 @@
 #include "LabeledClause.hpp"
 #include "Clause.hpp"
 #include "Match.hpp"
-#include "MemoKey.hpp";
-#include "MemoTable.hpp";
+#include "MemoKey.hpp"
+#include "MemoTable.hpp"
 #include "MetaGrammar.hpp"
 #include "TreeUtils.hpp"
 
@@ -44,39 +44,40 @@
 
 /** A node in the Abstract Syntax Tree (AST). */
 class ASTNode {
-public: 
+public:
     string label;
-    Clause nodeType;
+    Clause* nodeType;
     int startPos;
     int len;
     string input;
-    vector<ASTNode> children;
+    vector<ASTNode*> children;
 
-    ASTNode(string label, Clause nodeType, int startPos, int len, string input) {
-        this.label = label;
-        this.nodeType = nodeType;
-        this.startPos = startPos;
-        this.len = len;
-        this.input = input;
+    ASTNode(string label, Clause* nodeType, int startPos, int len, string input) {
+        this->label = label;
+        this->nodeType = nodeType;
+        this->startPos = startPos;
+        this->len = len;
+        this->input = input;
     }
 
     /** Recursively create an AST from a parse tree. */
-    ASTNode(string label, Match match, string input) {
-        this(label, match.memoKey.clause, match.memoKey.startPos, match.len, input);
+    ASTNode(string label, Match* match, string input) {
+        ASTNode(label, match->memoKey.clause, match->memoKey.startPos, match->len, input);
         addNodesWithASTNodeLabelsRecursive(this, match, input);
     }
 
     /** Recursively convert a match node to an AST node. */
-    void addNodesWithASTNodeLabelsRecursive(ASTNode parentASTNode, Match parentMatch, string input) {
+    void addNodesWithASTNodeLabelsRecursive(ASTNode* parentASTNode, Match* parentMatch, string input) {
         // Recurse to descendants
-        auto subClauseMatchesToUse = parentMatch.getSubClauseMatches();
+        vector<pair<string,Match*>> subClauseMatchesToUse = parentMatch->getSubClauseMatches();
         for (int subClauseMatchIdx = 0; subClauseMatchIdx < subClauseMatchesToUse.size(); subClauseMatchIdx++) {
-            auto subClauseMatchEnt = subClauseMatchesToUse.get(subClauseMatchIdx);
-            auto subClauseASTNodeLabel = subClauseMatchEnt.getKey();
-            auto subClauseMatch = subClauseMatchEnt.getValue();
-            if (subClauseASTNodeLabel != nullptr) {
+            pair<string, Match*> subClauseMatchEnt = subClauseMatchesToUse[subClauseMatchIdx];
+            string subClauseASTNodeLabel = subClauseMatchEnt.first;
+            Match* subClauseMatch = subClauseMatchEnt.second;
+            if (subClauseASTNodeLabel.empty()) {
                 // Create an AST node for any labeled sub-clauses
-                parentASTNode.children.push_back(ASTNode(subClauseASTNodeLabel, subClauseMatch, input));
+                ASTNode astPer(subClauseASTNodeLabel, subClauseMatch, input);
+                parentASTNode->children.push_back(&astPer);
             }
             else {
                 // Do not add an AST node for parse tree nodes that are not labeled; however, still need
@@ -86,15 +87,15 @@ public:
         }
     }
 
-    ASTNode getOnlyChild() {
+    ASTNode* getOnlyChild() {
         if (children.size() != 1) {
-           cout << ("Expected one child, got " + children.size());
-           abort();
+            cout << ("Expected one child, got " + children.size());
+            abort();
         }
         return children[0];
     }
 
-    ASTNode getFirstChild() {
+    ASTNode* getFirstChild() {
         if (children.size() < 1) {
             cout << "No first child";
             abort();
@@ -102,7 +103,7 @@ public:
         return children[0];
     }
 
-    ASTNode getSecondChild() {
+    ASTNode* getSecondChild() {
         if (children.size() < 2) {
             cout << "No second child";
             abort();
@@ -110,7 +111,7 @@ public:
         return children[1];
     }
 
-    ASTNode getThirdChild() {
+    ASTNode* getThirdChild() {
         if (children.size() < 3) {
             cout << "No third child";
             abort();
@@ -118,7 +119,7 @@ public:
         return children[2];
     }
 
-    ASTNode getChild(int i) {
+    ASTNode* getChild(int i) {
         return children[i];
     }
 
@@ -132,4 +133,4 @@ public:
         TreeUtils.renderTreeView(this, input, "", true, buf);
         return buf;
     }
-}
+};

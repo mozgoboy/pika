@@ -64,13 +64,13 @@ class Seq : public Clause {
     }
 
     /** Снова мэтчзирочарс которого у нас пока нет, т.к. не ясно для чего, ставит тру если у всех детей тру */
-    /* Надо дописать
+    // Надо дописать
     void addAsSeedParentClause() {
         // All sub-clauses up to and including the first clause that matches one or more characters
         // needs to seed its parent clause if there is a subclause match
         added = HashSet<>();
-        for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.length; subClauseIdx++) {
-            var subClause = labeledSubClauses[subClauseIdx].clause;
+        for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
+            auto subClause = labeledSubClauses[subClauseIdx].clause;
             // Don't duplicate seed parent clauses in the subclause
             if (added.add(subClause)) {
                 subClause.seedParentClauses.add(this);
@@ -81,7 +81,7 @@ class Seq : public Clause {
             }
         }
     }
-    */
+    
     /** как будто просто снова дописываем родителя всем детям у которых он пустой */
 
     

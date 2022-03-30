@@ -226,7 +226,7 @@ public:
     };
     Grammar grammar(NecessaryRules);
 
-    bool needToAddParensAroundSubClause(Clause parentClause, Clause subClause)
+    static bool needToAddParensAroundSubClause(Clause* parentClause, Clause* subClause)
     {
         int clausePrec;
         if (parentClause.TypeOfClause == 0) // 0 это просто значение инта для терминала, можно любое другое число забить
@@ -254,7 +254,7 @@ public:
             || (subClausePrec <= clausePrec));
     }
 
-    bool needToAddParensAroundASTNodeLabel(Clause subClause)
+    static bool needToAddParensAroundASTNodeLabel(Clause* subClause)
     {
         int astNodeLabelPrec = clauseTypeToPrecedence.[ASTNodeLabel];
         int subClausePrec;

@@ -47,7 +47,7 @@ public:
 
 	void addAsSeedParentClause()
 	{
-		vector<Clause> added;
+		vector<Clause*> added;
 		for (auto &x : labeledSubClauses)
 		{
 			if (notAlreadyExist(added, x))
@@ -58,21 +58,20 @@ public:
 		}
 	}
 
-	void determineWhetherCanMatchZeroChars()
-	{}
+	virtual void determineWhetherCanMatchZeroChars() = 0;
 
-	Match match(MemoTable memoTable, MemoKey memoKey, String input)
+	Match match(MemoTable memoTable, MemoKey memoKey, string input)
 	{}
 
 	// Две верхние функции пока не до конца понятно как работают и нужны ли?
 
-	String getRuleNames()
+	string getRuleNames()
 	{}
 
-	String toString()
+	string toString()
 	{}
 
-	String toStringWithRuleNames()
+	string toStringWithRuleNames()
 	{}
 
 	//Выше просто функции для вывода, нам они пока что не нужны.

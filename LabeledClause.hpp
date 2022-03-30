@@ -31,8 +31,8 @@
 
 #include "Clause.hpp"
 #include "Match.hpp"
-#include "MemoKey.hpp";
-#include "MemoTable.hpp";
+#include "MemoKey.hpp"
+#include "MemoTable.hpp"
 #include "MetaGrammar.hpp"
 
 #include <iostream>
@@ -42,39 +42,40 @@
 
 /** A container for grouping a subclause together with its AST node label. */
 class LabeledClause {
-public: 
-    Clause clause;
+public:
+    Clause* clause;
     string astNodeLabel;
 
-    LabeledClause(Clause clause, string astNodeLabel) {
-        this.clause = clause;
-        this.astNodeLabel = astNodeLabel;
+    LabeledClause(Clause* clause, string astNodeLabel) {
+        this->clause = clause;
+        this->astNodeLabel = astNodeLabel;
     }
 
     /** Call {@link #toString()}, prepending any AST node label. */
-    string toStringWithASTNodeLabel(Clause parentClause) {
-        auto addParens = parentClause != nullptr && MetaGrammar.needToAddParensAroundSubClause(parentClause, clause);
-        if (astNodeLabel == nullptr && !addParens) {
+    string toStringWithASTNodeLabel(Clause* parentClause) {
+        bool addParens;
+        addParens = ((parentClause != nullptr) && (MetaGrammar::needToAddParensAroundSubClause(parentClause, clause)));
+        if (astNodeLabel.empty() && !addParens) {
             // Fast path
-            return clause.toString();
+            return clause->toString();
         }
         string buf;
-        if (astNodeLabel != nullptr) {
+        if (not astNodeLabel.empty()) {
             buf.append(astNodeLabel);
-            buf.append(':');
-            addParens = addParens || MetaGrammar.needToAddParensAroundASTNodeLabel(clause);
+            buf.append(":");
+            addParens = addParens || MetaGrammar::needToAddParensAroundASTNodeLabel(clause);
         }
         if (addParens) {
-            buf.append('(');
+            buf.append("(");
         }
-        buf.append(clause.toString());
+        buf.append(clause->toString());
         if (addParens) {
-            buf.append(')');
+            buf.append(")");
         }
         return buf;
     }
 
     string toString() {
-        return toStringWithASTNodeLabel(null);
+        return toStringWithASTNodeLabel(nullptr);
     }
-}
+};
