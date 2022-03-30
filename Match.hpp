@@ -12,7 +12,7 @@ public:
 	int len;
 	int firstMatchingSubClauseIdx;
 	vector<Match> subClauseMatches;
-	vector<Match> NO_SUBCLAUSE_MATCHES;
+	static vector<Match> NO_SUBCLAUSE_MATCHES;
 
 	Match()
 	{}

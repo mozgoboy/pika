@@ -4,23 +4,25 @@
 class Nothing : public Terminal
 {
 public:
+	TypesofClauses TypeOfClause = TypesofClauses::Nothing;
 	string NOTHING_STR = "()";
 
-	Nothing()
+	Nothing() : Terminal()
 	{}
 
 	void determineWhetherCanMatchZeroChars()
 	{
-		CanMatchZeroChars = true;
+		canMatchZeroChars = true;
 	}
 
-	Match match(MemoTable memoTable, MemoKey memoKey, string input)
+	Match* match(MemoTable* memoTable, MemoKey* memoKey, string input)
 	{
-		if (memoKey.startPos == 0)
+		if (memoKey->startPos == 0)
 		{
-			return Match(memoKey);
+			Match mast(memoKey);
+			return &mast;
 		}
-		return NULL;
+		return nullptr;
 	}
 	//Функция выше пока не ясно как работает
 

@@ -1,30 +1,35 @@
 #pragma once
 #include "Terminal.hpp"
+#include "Match.hpp"
+#include "MemoKey.hpp"
+#include "MemoTable.hpp"
 
 class Start : public Terminal
 {
 public:
+	TypesofClauses TypeOfClause = TypesofClauses::Start;
 	string START_STR = "^";
 
-	Start()
+	Start() : Terminal()
 	{}
 
 	void determineWhetherCanMatchZeroChars() 
 	{
-		CanMatchZeroChars = true;
+		canMatchZeroChars = true;
 	}
 
-	Match match(MemoTable memoTable, MemoKey memoKey, string input) 
+	Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) 
 	{
-		if (memoKey.startPos == 0) 
+		if (memoKey->startPos == 0) 
 		{
-			return Match(memoKey);
+			Match mast(memoKey);
+			return &mast;
 		}
-		return NULL;
+		return nullptr;
 	}
 	//Функция выше пока не ясно как работает
 
-	String toString() 
+	string toString() 
 	{
 		if (toStringCached == "")
 		{
