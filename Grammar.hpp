@@ -1,28 +1,47 @@
 #pragma once
 
-#include <unordered_map>;
-#include <unordered_set>;
+#include <unordered_map>
+#include <unordered_set>
 #include <queue>
 #include <set>
-#include "Rule.hpp";
+#include "Rule.hpp"
+#include "Terminal.hpp"
+#include "Match.hpp"
+#include "MemoKey.hpp"
+#include "MemoTable.hpp"
+#include "StringUtils.hpp"
+#include "GrammarUtils.hpp"
+#include "RuleRef.hpp"
+#include "Clause.hpp"
+#include "Nothing.hpp"
 
 class Grammar
 {
 private:
 
 public:
-	vector<Rule> allRules;
-	unordered_map<string, Rule> ruleNameWithPrecedenceToRule;
-	vector<Clause> allClauses;
+	vector<Rule*> allRules;
+	unordered_map<string, Rule*> ruleNameWithPrecedenceToRule;
+	vector<Clause*> allClauses;
 	bool DEBUG = false;
 
-	Grammar(vector<Rule> rules)
+	Grammar(vector<Rule*> rules)
 	{
-		Rule topLevelRule = rules[0];
-		unordered_map<string, vector<Rule>> ruleNameToRules;
-		vector<Rule> rulesWithName;
+		Rule* topLevelRule = rules[0];
+		unordered_map<string, vector<Rule*>> ruleNameToRules;
+		vector<Rule*> rulesWithName;
 		for (auto rule : rules)
 		{
+			if (rule->ruleName.empty()) {
+				cout << "All rules must be named";
+				abort();
+			}
+			if (rule->labeledClause->clause->TypeOfClause == TypesOfClauses::RuleRef
+				&& ((RuleRef)rule.labeledClause.clause).refdRuleName.equals(rule.ruleName)) {
+				// Make sure rule doesn't refer only to itself
+				throw new IllegalArgumentException(
+					"Rule cannot refer to only itself: " + rule.ruleName + "[" + rule.precedence + "]");
+			}
 			if (ruleNameToRules.find(rule.ruleName) == ruleNameToRules.end()) 
 			{
 				rulesWithName.clear();

@@ -41,7 +41,7 @@
 
 /** The NotFollowedBy (inverted lookahead) PEG operator. */
 class NotFollowedBy : public Clause {
-    TypesofClauses TypeOfClause = TypesofClauses::NotFollowedBy;
+    TypesOfClauses TypeOfClause = TypesOfClauses::NotFollowedBy;
     NotFollowedBy(Clause* subClause) : Clause(vector<Clause*> { subClause }) {
     }
 

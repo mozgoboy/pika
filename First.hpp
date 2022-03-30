@@ -40,7 +40,7 @@
 
 /** The First (ordered choice) PEG operator. */
 class First : public Clause {
-    TypesofClauses TypeOfClause = TypesofClauses::First;
+    TypesOfClauses TypeOfClause = TypesOfClauses::First;
     First(vector<Clause*> subClauses) : Clause(subClauses) {
         if (subClauses.size() < 2) {
             cout << "First expects 2 or more subclauses";

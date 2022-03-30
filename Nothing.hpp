@@ -1,10 +1,13 @@
 #pragma once
 #include "Terminal.hpp"
+#include "Match.hpp"
+#include "MemoKey.hpp"
+#include "MemoTable.hpp"
 
 class Nothing : public Terminal
 {
 public:
-	TypesofClauses TypeOfClause = TypesofClauses::Nothing;
+	TypesOfClauses TypeOfClause = TypesOfClauses::Nothing;
 	string NOTHING_STR = "()";
 
 	Nothing() : Terminal()

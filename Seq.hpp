@@ -42,7 +42,7 @@
 
 /** The Seq (sequence) PEG operator. */
 class Seq : public Clause {
-    TypesofClauses TypeOfClause = TypesofClauses::Seq;
+    TypesOfClauses TypeOfClause = TypesOfClauses::Seq;
     Seq(vector<Clause*> subClauses) : Clause(subClauses) {
         if (subClauses.size() < 2) {
             cout << "Seq expects 2 or more subclauses";

@@ -12,7 +12,7 @@ class CharSeq : public Terminal
 public:
 	string str;
 	bool ignoreCase;
-	TypesofClauses TypeOfClause = TypesofClauses::CharSeq;
+	TypesOfClauses TypeOfClause = TypesOfClauses::CharSeq;
 	CharSeq(string str, bool ignoreCase) : Terminal()
 	{
 		this->str = str;

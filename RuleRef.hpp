@@ -46,20 +46,23 @@
 class RuleRef : public Clause {
     string refdRuleName;
 
-    RuleRef(String refdRuleName) : Clause(vector<Clause> {}) {
-        this.refdRuleName = refdRuleName;
+    RuleRef(string refdRuleName) : Clause(vector<Clause*> {}) {
+        this->refdRuleName = refdRuleName;
     }
 
     void determineWhetherCanMatchZeroChars() {
     }
 
-    Match match(MemoTable memoTable, MemoKey memoKey, String input) {
-        cout << " node should not be in final grammar";
+    Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) {
+        cout << "RuleRef node should not be in final grammar";
         abort();
     }
 
 
     string toString() {
-      
+        if (toStringCached.empty()) {
+            toStringCached = refdRuleName;
+        }
+        return toStringCached;
     }
-}
+};

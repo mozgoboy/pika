@@ -2,8 +2,9 @@
 #include "bits-stdc++.h"
 #include "Terminal.hpp"
 #include <bitset> 
-
-
+#include "Match.hpp"
+#include "MemoKey.hpp"
+#include "StringUtils.hpp"
 
 class CharSet : public Terminal
 {
@@ -13,7 +14,7 @@ private:
 	//“о что выше вроде как аналог их варианта, но у них почему-то это безразмерные множества.
 
 public:
-	TypesofClauses TypeOfClause = TypesofClauses::CharSet;
+	TypesOfClauses TypeOfClause = TypesOfClauses::CharSet;
 	CharSet()
 	{}
 
@@ -26,11 +27,12 @@ public:
 		}
 	}
 
-	CharSet(vector<CharSet*> CharSets)
+	CharSet(vector<CharSet*> CharSets) : Terminal()
 	{
 		if (CharSets.size() == 0)
 		{
-			//«десь потом будет пробрасывание исключений
+			cout << "Must provide at least one CharSet";
+			abort();
 		}
 		for (auto charSet : CharSets)
 		{
@@ -45,9 +47,13 @@ public:
 		}
 	}
 
-	CharSet(bitset<8> chars) 
+	CharSet(bitset<8> chars) : Terminal()
 	{
-		//” них первой строчкой идЄт конструктор супер, € не совсем пон€л зачем.
+		if (chars.cardinality() == 0)
+		{
+			cout << "Must provide at least one CharSet";
+			abort();
+		}
 		this->chars = chars;
 	}
 

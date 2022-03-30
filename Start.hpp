@@ -7,7 +7,7 @@
 class Start : public Terminal
 {
 public:
-	TypesofClauses TypeOfClause = TypesofClauses::Start;
+	TypesOfClauses TypeOfClause = TypesOfClauses::Start;
 	string START_STR = "^";
 
 	Start() : Terminal()

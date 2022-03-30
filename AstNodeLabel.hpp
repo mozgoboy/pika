@@ -48,6 +48,7 @@
 class ASTNodeLabel : public Clause {
 public:
     string astNodeLabel;
+    TypesOfClauses TypeOfClause = TypesOfClauses::ASTNodeLabel;
 
     ASTNodeLabel(string astNodeLabel, Clause* clause) : Clause(vector<Clause*> { clause }) {
         this->astNodeLabel = astNodeLabel;
@@ -58,7 +59,7 @@ public:
     }
 
     Match match(MemoTable memoTable, MemoKey memoKey, string input) {
-        cout << "AstNodeLabel node should not be in final grammar";
+        cout << "ASTNodeLabel node should not be in final grammar";
         abort();
     }
     string toString() {

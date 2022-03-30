@@ -19,7 +19,7 @@
 
 using namespace std;
 
-enum class TypesofClauses {Clause , First , FollowedBy , NotFollowedBy , OneOrMore , Seq , CharSeq , CharSet , Nothing , Start , Terminal , AstNodeLabel , RuleRef  };
+enum class TypesOfClauses {Clause , First , FollowedBy , NotFollowedBy , OneOrMore , Seq , CharSeq , CharSet , Nothing , Start , Terminal , ASTNodeLabel , RuleRef  };
 
 
 
@@ -34,14 +34,14 @@ public:
 	int clauseIdx;
 	string toStringCached;
 	string toStringWithRuleNameCached;
-	TypesofClauses TypeOfClause= TypesofClauses::Clause;
+	TypesOfClauses TypeOfClause= TypesOfClauses::Clause;
 
 	Clause()
 	{}
 
 	Clause(vector<Clause*> subClauses)
 	{
-		if (subClauses.size() > 0 && subClauses[0]->TypeOfClause == TypesofClauses::Nothing) {
+		if (subClauses.size() > 0 && subClauses[0]->TypeOfClause == TypesOfClauses::Nothing) {
 			// Nothing can't be the first subclause, since we don't trigger upwards expansion of the DP wavefront
 			// by seeding the memo table by matching Nothing at every input position, to keep the memo table small
 			cout <<   "Nothing cannot be the first subclause of any clause";
@@ -52,7 +52,7 @@ public:
 		{
 			Clause* subClause = subClauses[i];
 			string astNodeLabel;
-			if (subClause->TypeOfClause == TypesofClauses::AstNodeLabel )
+			if (subClause->TypeOfClause == TypesOfClauses::ASTNodeLabel )
 			{
 				// Transfer ASTNodeLabel.astNodeLabel to LabeledClause.astNodeLabel field
 				astNodeLabel = ((ASTNodeLabel*)subClause)->astNodeLabel;

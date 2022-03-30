@@ -44,7 +44,7 @@ using namespace std;
 
 /** A container for grouping a subclause match together with its AST node label. */
 class LabeledMatch {
-public: 
+public:
     Match* match;
     string astNodeLabel;
 
@@ -56,4 +56,4 @@ public:
     string toString() {
         return astNodeLabel.empty() ? match->toString() : astNodeLabel + ":(" + match->toString() + ")";
     }
-}
+};

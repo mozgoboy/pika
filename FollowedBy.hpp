@@ -43,7 +43,7 @@
 
 /** The FollowedBy (lookahead) PEG operator. */
 class FollowedBy : public Clause {
-    TypesofClauses TypeOfClause = TypesofClauses::FollowedBy;
+    TypesOfClauses TypeOfClause = TypesOfClauses::FollowedBy;
     FollowedBy(Clause* subClause) : Clause(vector<Clause*> { subClause }) {
 
     }

@@ -40,7 +40,7 @@
 #include <string>
 
 class OneOrMore : public Clause {
-    TypesofClauses TypeOfClause = TypesofClauses::OneOrMore;
+    TypesOfClauses TypeOfClause = TypesOfClauses::OneOrMore;
     OneOrMore(Clause subClause) : Clause(vector<Clause> { subClause }) {
     }
 
