@@ -43,29 +43,35 @@
 
 /** The FollowedBy (lookahead) PEG operator. */
 class FollowedBy : public Clause {
-    FollowedBy(Clause subClause) : Clause(vector<Clause> { subClause }) {
+    TypesofClauses TypeOfClause = TypesofClauses::FollowedBy;
+    FollowedBy(Clause* subClause) : Clause(vector<Clause*> { subClause }) {
 
     }
     void determineWhetherCanMatchZeroChars() {
         // Don't set canMatchZeroChars to true, because FollowedBy will only match if it subclause
         // consumes at least one matching character
-        if (labeledSubClauses[0].clause.canMatchZeroChars) {
-            cout << "Subclause always matches zero characters, so this clause has no effect: ";
+        if (labeledSubClauses[0]->clause->canMatchZeroChars) {
+            cout << "Subclause always matches zero characters, so this clause has no effect: " + this->toString();
             abort();
         }
     }
 
-    Match match(MemoTable memoTable, MemoKey memoKey, string input) {
-        labeledSubClause = labeledSubClauses[0];
-        subClauseMemoKey = MemoKey(labeledSubClause.clause, memoKey.startPos);
-        subClauseMatch = memoTable.lookUpBestMatch(subClauseMemoKey);
-        if (subClauseMatch != null) {
+    Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) {
+        LabeledClause* labeledSubClause = labeledSubClauses[0];
+        MemoKey subClauseMemoKey(labeledSubClause->clause, memoKey->startPos);
+        Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
+        if (subClauseMatch != nullptr) {
             // If there is any valid subclause match, return a new zero-length match
-            return Match(memoKey);
+            Match mast(memoKey);
+            return &mast;
         }
-        return null;
+        return nullptr;
     }
 
     string toString() {
+        if (toStringCached.empty()) {
+            toStringCached = "&" + labeledSubClauses[0]->toStringWithASTNodeLabel(this);
+        }
+        return toStringCached;
     }
-}
+};

@@ -40,9 +40,10 @@
 
 /** The First (ordered choice) PEG operator. */
 class First : public Clause {
-    First(vector<Clause> subClauses) : Clause(subClauses) {
-        if (subClauses.length < 2) {
-            cout << " expects 2 or more subclauses";
+    TypesofClauses TypeOfClause = TypesofClauses::First;
+    First(vector<Clause*> subClauses) : Clause(subClauses) {
+        if (subClauses.size() < 2) {
+            cout << "First expects 2 or more subclauses";
             abort();
         }
     }
@@ -51,13 +52,13 @@ class First : public Clause {
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
             // Up to one subclause of a First clause can match zero characters, and if present,
             // the subclause that can match zero characters must be the last subclause
-            if (labeledSubClauses[subClauseIdx].clause.canMatchZeroChars) {
+            if (labeledSubClauses[subClauseIdx]->clause->canMatchZeroChars) {
                 canMatchZeroChars = true;
                 if (subClauseIdx < labeledSubClauses.size() - 1) {
                     cout <<
-                        ("Subclause " + subClauseIdx + " of "
-                        + " can match zero characters, which means subsequent subclauses will never be "
-                        + "matched: " );
+                        ("Subclause " + to_string(subClauseIdx)  + " of First"
+                            + " can match zero characters, which means subsequent subclauses will never be "
+                            + "matched: " + this->toString());
                     abort();
                 }
                 break;
@@ -66,19 +67,32 @@ class First : public Clause {
     }
 
 
-    Match match(MemoTable memoTable, MemoKey memoKey, string input) {
+    Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) {
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
-            subClause = labeledSubClauses[subClauseIdx].clause;
-            subClauseMemoKey = MemoKey(subClause, memoKey.startPos);
-            subClauseMatch = memoTable.lookUpBestMatch(subClauseMemoKey);
-            if (subClauseMatch != null) {
+            Clause* subClause = labeledSubClauses[subClauseIdx]->clause;
+            MemoKey subClauseMemoKey(subClause, memoKey->startPos);
+            Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
+            if (subClauseMatch != nullptr) {
                 // Return a match for the first matching subclause
-                return  Match(memoKey, /* len = */ subClauseMatch.len,
-                    /* firstMatchingSubclauseIdx = */ subClauseIdx,  vector<Match> { subClauseMatch });
+                Match mast(memoKey, /* len = */ subClauseMatch->len,
+                /* firstMatchingSubclauseIdx = */ subClauseIdx, vector<Match*>{ subClauseMatch });
+                return &mast;
             }
         }
-        return null;
+        return nullptr;
     }
 
-        string toString() {}
-}
+    string toString() {
+        if (toStringCached.empty()) {
+            string buf;
+            for (int i = 0; i < labeledSubClauses.size(); i++) {
+                if (i > 0) {
+                    buf.append(" / ");
+                }
+                buf.append(labeledSubClauses[i]->toStringWithASTNodeLabel(this));
+            }
+            toStringCached = buf;
+        }
+        return toStringCached;
+    }
+};

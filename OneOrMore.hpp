@@ -40,40 +40,45 @@
 #include <string>
 
 class OneOrMore : public Clause {
+    TypesofClauses TypeOfClause = TypesofClauses::OneOrMore;
     OneOrMore(Clause subClause) : Clause(vector<Clause> { subClause }) {
     }
 
     void determineWhetherCanMatchZeroChars() {
-        if (labeledSubClauses[0].clause.canMatchZeroChars) {
+        if (labeledSubClauses[0]->clause->canMatchZeroChars) {
             canMatchZeroChars = true;
         }
     }
 
-    Match match(MemoTable memoTable, MemoKey memoKey, string input) {
-        labeledSubClause = labeledSubClauses[0].clause;
-        subClauseMemoKey = MemoKey(labeledSubClause, memoKey.startPos);
-        subClauseMatch = memoTable.lookUpBestMatch(subClauseMemoKey);
-        if (subClauseMatch == null) {
+    Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) {
+        Clause* labeledSubClause = labeledSubClauses[0]->clause;
+        MemoKey subClauseMemoKey(labeledSubClause, memoKey->startPos);
+        Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
+        if (subClauseMatch == nullptr) {
             // Zero matches at memoKey.startPos
-            return null;
+            return nullptr;
         }
 
         // Perform right-recursive match of the same OneOrMore clause, so that the memo table doesn't
         // fill up with O(M^2) entries in the number of subclause matches M.
         // If there are two or more matches, tailMatch will be non-null.
-        tailMatchMemoKey = MemoKey(this, memoKey.startPos + subClauseMatch.len);
-        tailMatch = memoTable.lookUpBestMatch(tailMatchMemoKey);
-
+        MemoKey tailMatchMemoKey(this, memoKey->startPos + subClauseMatch->len);
+        Match* tailMatch = memoTable->lookUpBestMatch(&tailMatchMemoKey);
+        Match mast1(memoKey, /* len = */ subClauseMatch->len, //
+            vector<Match*>{ subClauseMatch });
+        Match mast2(memoKey, /* len = */ subClauseMatch->len + tailMatch->len, //
+            vector<Match*>{ subClauseMatch, tailMatch });
         // Return a new (right-recursive) match
-        return tailMatch == null //
+        return tailMatch == nullptr //
                 // There is only one match => match has only one subclause
-            ? Match(memoKey, /* len = */ subClauseMatch.len, //
-                 vector<Match> { subClauseMatch })
+            ? &mast1
             // There are two or more matches => match has two subclauses (head, tail)
-            :  Match(memoKey, /* len = */ subClauseMatch.len + tailMatch.len, //
-                 vector<Match> { subClauseMatch, tailMatch } );
+            : &mast2;
     }
     string toString() {
-        
+        if (toStringCached.empty()) {
+            toStringCached = labeledSubClauses[0]->toStringWithASTNodeLabel(this) + "+";
+        }
+        return toStringCached;
     }
-}
+};

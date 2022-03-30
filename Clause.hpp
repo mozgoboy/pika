@@ -30,8 +30,8 @@ public:
 	vector<LabeledClause*> labeledSubClauses;
 	vector<Rule*> rules;
 	vector<Clause*> seedParentClauses;
-	bool CanMatchZeroChars; //ѕо идее удалим, пока не пон€тно зачем нужно
-	int ClauseIdx;
+	bool canMatchZeroChars; //ѕо идее удалим, пока не пон€тно зачем нужно
+	int clauseIdx;
 	string toStringCached;
 	string toStringWithRuleNameCached;
 	TypesofClauses TypeOfClause= TypesofClauses::Clause;
@@ -88,7 +88,7 @@ public:
 
 	virtual void determineWhetherCanMatchZeroChars() = 0;
 
-	virtual Match* match(MemoTable memoTable, MemoKey memoKey, string input) = 0;
+	virtual Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) = 0;
 	
 
 
@@ -146,6 +146,6 @@ public:
 		}
 		return toStringWithRuleNameCached;
 	}
-}
+};
 
 /** ѕерегон€ем каким то образом класс в строку дл€ вывода. */

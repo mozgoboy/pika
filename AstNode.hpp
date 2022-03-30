@@ -64,7 +64,7 @@ public:
 
     /** Recursively create an AST from a parse tree. */
     ASTNode(string label, Match* match, string input) {
-        ASTNode(label, match->memoKey.clause, match->memoKey.startPos, match->len, input);
+        ASTNode(label, match->memoKey->clause, match->memoKey->startPos, match->len, input);
         addNodesWithASTNodeLabelsRecursive(this, match, input);
     }
 

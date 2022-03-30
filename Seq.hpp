@@ -42,9 +42,10 @@
 
 /** The Seq (sequence) PEG operator. */
 class Seq : public Clause {
-    Seq(vector<Clause> subClauses) : Clause(subClauses) {
+    TypesofClauses TypeOfClause = TypesofClauses::Seq;
+    Seq(vector<Clause*> subClauses) : Clause(subClauses) {
         if (subClauses.size() < 2) {
-            cout << " expects 2 or more subclauses";
+            cout << "Seq expects 2 or more subclauses";
             abort();
         }
     }
@@ -54,9 +55,9 @@ class Seq : public Clause {
     void determineWhetherCanMatchZeroChars() {
         // For Seq, all subclauses must be able to match zero characters for the whole clause to
         // be able to match zero characters
-        canMatchZeroChars = true;
+        bool canMatchZeroChars = true;
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
-            if (!labeledSubClauses[subClauseIdx].clause.canMatchZeroChars) {
+            if (!labeledSubClauses[subClauseIdx]->clause->canMatchZeroChars) {
                 canMatchZeroChars = false;
                 break;
             }
@@ -68,48 +69,59 @@ class Seq : public Clause {
     void addAsSeedParentClause() {
         // All sub-clauses up to and including the first clause that matches one or more characters
         // needs to seed its parent clause if there is a subclause match
-        added = HashSet<>();
+        set<Clause*> added;
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
-            auto subClause = labeledSubClauses[subClauseIdx].clause;
+            Clause* subClause = labeledSubClauses[subClauseIdx]->clause;
             // Don't duplicate seed parent clauses in the subclause
-            if (added.add(subClause)) {
-                subClause.seedParentClauses.add(this);
+            if (added.insert(subClause).second) {
+                subClause->seedParentClauses.push_back(this);
             }
-            if (!subClause.canMatchZeroChars) {
+            if (!subClause->canMatchZeroChars) {
                 // Don't need to any subsequent subclauses to seed this parent clause
                 break;
             }
         }
     }
-    
+
     /** как будто просто снова дописываем родителя всем детям у которых он пустой */
 
-    
-    Match match(MemoTable memoTable, MemoKey memoKey, string input) {
-        vector<Match> subClauseMatches = nullptr;
-        auto currStartPos = memoKey.startPos;
+
+    Match* match(MemoTable* memoTable, MemoKey* memoKey, string input) {
+        vector<Match*> subClauseMatches;
+        int currStartPos = memoKey->startPos;
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
-            subClause = labeledSubClauses[subClauseIdx].clause;
-            subClauseMemoKey = MemoKey(subClause, currStartPos);
-            subClauseMatch = memoTable.lookUpBestMatch(subClauseMemoKey);
+            Clause* subClause = labeledSubClauses[subClauseIdx]->clause;
+            MemoKey subClauseMemoKey(subClause, currStartPos);
+            Match* subClauseMatch = memoTable->lookUpBestMatch(subClauseMemoKey);
             if (subClauseMatch == nullptr) {
                 // Fail after first subclause fails to match
                 return nullptr;
             }
-            if (subClauseMatches == nullptr) {
-                subClauseMatches =  Match[labeledSubClauses.size()];
+            if (subClauseMatches.empty()) {
+                subClauseMatches.resize(labeledSubClauses.size(), nullptr);
             }
             subClauseMatches[subClauseIdx] = subClauseMatch;
-            currStartPos += subClauseMatch.len;
+            currStartPos += subClauseMatch->len;
         }
         // All subclauses matched, so the Seq clause matches
-        return Match(memoKey, /* len = */ currStartPos - memoKey.startPos, subClauseMatches);
+        Match mast(memoKey, /* len = */ currStartPos - memoKey->startPos, subClauseMatches);
+        return &mast;
     }
     /** Пока не уверены, наверное сравнение с имеющимися элементами в мемо чтобы не разбирать. Но это не точно. */
 
     string toString() {
-        
+        if (toStringCached.empty()) {
+            string buf;
+            for (int i = 0; i < labeledSubClauses.size(); i++) {
+                if (i > 0) {
+                    buf.append(" ");
+                }
+                buf.append(labeledSubClauses[i]->toStringWithASTNodeLabel(this));
+            }
+            toStringCached = buf;
+        }
+        return toStringCached;
     }
-}
+};
 
 /** Снова штука просто для вывода */
