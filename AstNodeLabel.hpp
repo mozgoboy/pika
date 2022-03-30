@@ -27,7 +27,7 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-#pragma ones
+#pragma once
 
 #include "LabeledClause.hpp"
 #include "Clause.hpp"
@@ -46,21 +46,24 @@
  * object for each subclause of a clause.
  */
 class ASTNodeLabel : public Clause {
-public: 
+public:
     string astNodeLabel;
 
-    ASTNodeLabel(string astNodeLabel, Clause clause) : Clause(vector<Clause> { clause }) {
-        this.astNodeLabel = astNodeLabel;
+    ASTNodeLabel(string astNodeLabel, Clause* clause) : Clause(vector<Clause*> { clause }) {
+        this->astNodeLabel = astNodeLabel;
     }
 
-    
-     void determineWhetherCanMatchZeroChars() {
+
+    void determineWhetherCanMatchZeroChars() {
     }
 
     Match match(MemoTable memoTable, MemoKey memoKey, string input) {
-        cout << " node should not be in final grammar";
+        cout << "AstNodeLabel node should not be in final grammar";
         abort();
     }
     string toString() {
-    }
-}
+        if (toStringCached.empty()) {
+            toStringCached = astNodeLabel + ":(" + labeledSubClauses[0]->toString() + ")";
+        }
+        return toStringCached;
+};

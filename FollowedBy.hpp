@@ -29,7 +29,7 @@
 //
 
 
-#pragma ones
+#pragma once
 
 #include "Clause.hpp"
 #include "Match.hpp"

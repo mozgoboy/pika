@@ -1,7 +1,9 @@
 #pragma once
-#include <bitset> 
-#include "Terminal.hpp"
 #include "bits-stdc++.h"
+#include "Terminal.hpp"
+#include <bitset> 
+
+
 
 class CharSet : public Terminal
 {
