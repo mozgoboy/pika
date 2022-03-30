@@ -12,6 +12,7 @@
 #include <string>
 #include <stdlib.h>
 #include <set>
+#include <algorithm>
 
 
 
@@ -20,12 +21,14 @@ using namespace std;
 
 enum class TypesofClauses {Clause , First , FollowedBy , NotFollowedBy , OneOrMore , Seq , CharSeq , CharSet , Nothing , Start , Terminal , AstNodeLabel , RuleRef  };
 
+
+
 class Clause
 {
 private:
 public:
 	vector<LabeledClause*> labeledSubClauses;
-	set<Rule*> rules;
+	vector<Rule*> rules;
 	vector<Clause*> seedParentClauses;
 	bool CanMatchZeroChars; //По идее удалим, пока не понятно зачем нужно
 	int ClauseIdx;
@@ -63,12 +66,12 @@ public:
 
 	void registerRule(Rule* rule)
 	{
-		rules.insert(rule);
+		rules.push_back(rule);
 	}
 
 	void unregisterRule(Rule* rule)
 	{
-		rules.erase(rule);
+		rules.erase(remove(rules.begin(), rules.end(), rule), rules.end());
 	}
 
 	void addAsSeedParentClause()
@@ -91,12 +94,17 @@ public:
 
 	/** Функции сверху - как макеты, описаны персонально для каждего класса */
 	/** Get the names of rules that this clause is the root clause of. */
+
+
 	string getRuleNames() {
-		 boost::algorithm::join(elems, ", ");
-		return rules.empty() ? ""
-			: string.join(", ",
-				rules.stream().map(rule->rule.ruleName).sorted().collect(Collectors.toList()));
-		string buf = for_each(rules.begin(), rules.end(), [](Rule* rule) -> string {  return rule->ruleName; });
+		string buf;
+		for (auto rule : rules)
+		{
+			buf += rule->ruleName + ", ";
+		}
+		buf.pop_back();
+		buf.pop_back();
+		return buf;
 	}
 	/** Тупа вывод */
 
@@ -106,34 +114,34 @@ public:
 	}
 
 	/** Get the clause as a string, with rule names prepended if the clause is the toplevel clause of a rule. */
-	public String toStringWithRuleNames() {
-		if (toStringWithRuleNameCached == null) {
-			if (rules != null) {
-				StringBuilder buf = new StringBuilder();
+	string toStringWithRuleNames() {
+		string buf;
+		if (toStringWithRuleNameCached.empty()) {
+			if (not rules.empty()) {
 				// Add rule names
 				buf.append(getRuleNames());
 				buf.append(" <- ");
 				// Add any AST node labels
-				var addedASTNodeLabels = false;
+				bool addedASTNodeLabels = false;
 				for (int i = 0; i < rules.size(); i++) {
-					var rule = rules.get(i);
-					if (rule.labeledClause.astNodeLabel != null) {
-						buf.append(rule.labeledClause.astNodeLabel + ":");
+					Rule* rule = rules[i];
+					if (not rule->labeledClause->astNodeLabel.empty()) {
+						buf.append(rule->labeledClause->astNodeLabel + ":");
 						addedASTNodeLabels = true;
 					}
 				}
-				var addParens = addedASTNodeLabels && MetaGrammar.needToAddParensAroundASTNodeLabel(this);
+				bool addParens = addedASTNodeLabels && MetaGrammar::needToAddParensAroundASTNodeLabel(this);
 				if (addParens) {
-					buf.append('(');
+					buf.append("(");
 				}
 				buf.append(toString());
 				if (addParens) {
-					buf.append(')');
+					buf.append(")");
 				}
-				toStringWithRuleNameCached = buf.toString();
+				toStringWithRuleNameCached = buf;
 			}
 			else {
-				toStringWithRuleNameCached = toString();
+				toStringWithRuleNameCached = buf;
 			}
 		}
 		return toStringWithRuleNameCached;

@@ -8,7 +8,7 @@ public:
 
     int precedence;
 
-    LabeledClause labeledClause;
+    LabeledClause* labeledClause;
 
     enum Associativity
     {
