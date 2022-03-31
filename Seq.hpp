@@ -42,6 +42,7 @@
 
 /** The Seq (sequence) PEG operator. */
 class Seq : public Clause {
+public:
     TypesOfClauses TypeOfClause = TypesOfClauses::Seq;
     Seq(vector<Clause*> subClauses) : Clause(subClauses) {
         if (subClauses.size() < 2) {

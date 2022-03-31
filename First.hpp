@@ -40,6 +40,7 @@
 
 /** The First (ordered choice) PEG operator. */
 class First : public Clause {
+public:
     TypesOfClauses TypeOfClause = TypesOfClauses::First;
     First(vector<Clause*> subClauses) : Clause(subClauses) {
         if (subClauses.size() < 2) {
