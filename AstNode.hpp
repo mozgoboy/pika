@@ -132,7 +132,7 @@ public:
 
     string toString() {
         string buf;
-        TreeUtils.renderTreeView(this, input, "", true, buf);
+        TreeUtils::renderTreeView(this, input, "", true, buf);
         return buf;
     }
 };

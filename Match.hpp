@@ -8,11 +8,11 @@ class Match
 {
 private:
 public:
-	MemoKey memoKey;
+	MemoKey* memoKey;
 	int len;
 	int firstMatchingSubClauseIdx;
-	vector<Match> subClauseMatches;
-	static vector<Match> NO_SUBCLAUSE_MATCHES;
+	vector<Match*> subClauseMatches;
+	static vector<Match*> NO_SUBCLAUSE_MATCHES;
 
 	Match()
 	{}

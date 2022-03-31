@@ -34,14 +34,14 @@ public:
 	int clauseIdx;
 	string toStringCached;
 	string toStringWithRuleNameCached;
-	TypesOfClauses TypeOfClause= TypesOfClauses::Clause;
+	TypesOfClauses TypeOfClause = TypesOfClauses::Clause;
 
 	Clause()
 	{}
 
 	Clause(vector<Clause*> subClauses)
 	{
-		if (subClauses.size() > 0 && subClauses[0]->TypeOfClause == TypesOfClauses::Nothing) {
+		if (subClauses.size() > 0 &&  subClauses[0]->TypeOfClause == TypesOfClauses::Nothing) {
 			// Nothing can't be the first subclause, since we don't trigger upwards expansion of the DP wavefront
 			// by seeding the memo table by matching Nothing at every input position, to keep the memo table small
 			cout <<   "Nothing cannot be the first subclause of any clause";

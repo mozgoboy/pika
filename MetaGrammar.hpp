@@ -12,6 +12,9 @@
 #include "Rule.hpp";
 #include "ParserInfo.hpp";
 #include "StringUtils.hpp";
+#include "ASTNode.hpp"
+#include "ASTNodeLabel.hpp"
+#include "RuleRef.hpp"
 
 class MetaGrammar
 {
@@ -77,17 +80,17 @@ private:
     * 2)  ак-то указать что этот umap не должен измен€тьс€
     */
 
-    Clause expectOne(vector<Clause> clauses, ASTNode astNode) 
+    Clause* expectOne(vector<Clause*> clauses, ASTNode* astNode) 
     {
-        /*if (clauses.size() != 1) {
-            throw new IllegalArgumentException("Expected one subclause, got " + clauses.size() + ": " + astNode);
-        }*/
+        if (clauses.size() != 1) {
+            cout << "Expected one subclause, got " << clauses.size() << ": " << astNode->toString();
+        }
         return clauses[0];
     }
 
-    vector<Clause> parseASTNodes(vector<ASTNode> astNodes) 
+    vector<Clause*> parseASTNodes(vector<ASTNode*> astNodes) 
     {
-        vector<Clause> clauses;
+        vector<Clause*> clauses;
         for (auto astNode : astNodes) 
         {
             clauses.push_back(parseASTNode(astNode));
@@ -95,10 +98,10 @@ private:
         return clauses;
     }
 
-    Clause parseASTNode(ASTNode astNode) 
+    Clause* parseASTNode(ASTNode* astNode) 
     {
-        Clause clause;
-        switch (astNode.label) 
+        Clause* clause;
+        switch (astNodelabel) 
         {
         case SEQ_AST:
             clause = seq(parseASTNodes(astNode.children).toArray(new Clause[0]));

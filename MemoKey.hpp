@@ -11,7 +11,7 @@ class MemoKey
 {
 private:
 public:
-	Clause clause;
+	Clause* clause;
 	int startPos;
 
 	MemoKey()
