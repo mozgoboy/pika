@@ -25,7 +25,8 @@ public:
 
 	int hashCode() 
 	{
-		return clause->hashCode() ^ startPos; // тут побитовая операция исключающего или
+		std::hash<Clause*> hut;
+		return hut(clause) ^ startPos; // тут побитовая операция исключающего или
 
 	}
 
@@ -43,11 +44,11 @@ public:
 
 	string toStringWithRuleNames() 
 	{
-		return clause->toStringWithRuleNames() + " : " + startPos;
+		return clause->toStringWithRuleNames() + " : " + to_string(startPos);
 	}
 
 	string toString() 
 	{
-		return clause->toString() + " : " + startPos;
+		return clause->toString() + " : " + to_string(startPos);
 	}
 };
