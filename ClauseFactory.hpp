@@ -37,7 +37,7 @@ class ClauseFactory
             return subClause;
         }
         OneOrMore oom(subClause);
-        return &oom;
+        return (Clause*)&oom;
     }
 
     Clause* optional(Clause* subClause) 
@@ -90,7 +90,7 @@ class ClauseFactory
         }
         else if (subClause->TypeOfClause == TypesOfClauses::NotFollowedBy)
         {
-            FollowedBy X(subClause->labeledSubClauses[0].clause);
+            FollowedBy X(subClause->labeledSubClauses[0]->clause);
             return &X;
         }
         else if (subClause->TypeOfClause == TypesOfClauses::FollowedBy || subClause->TypeOfClause == TypesOfClauses::Start)
@@ -162,7 +162,7 @@ class ClauseFactory
     CharSet cRange(string charRangeStr) 
     {
         bool invert = charRangeStr[0] == '^';
-        auto charList = StringUtils.getCharRangeChars(invert ? charRangeStr.substring(1) : charRangeStr); // Пока не совсем понял что эта функция делает
+        auto charList = StringUtils::getCharRangeChars(invert ? charRangeStr.substring(1) : charRangeStr); // Пока не совсем понял что эта функция делает
         auto chars = new bitset(0xffff);
         for (int i = 0; i < charList.size(); i++) {
             auto c = charList.get(i);
