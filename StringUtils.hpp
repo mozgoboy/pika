@@ -47,7 +47,7 @@ public:
     static void replaceNonASCII(string str, string buf) {
         for (int i = 0; i < str.length(); i++) {
             char c = str[i];
-            buf.append(replaceNonASCII(c));
+            buf.append(to_string(replaceNonASCII(c)));
         }
     }
 
@@ -100,92 +100,96 @@ public:
         CASE ("\\\\") :
             return '\\';
         DEFAULT :
-            if (escapedChar.startsWith("\\u") && escapedChar.length() == 6) {
-                int c0 = hexDigitToInt(escapedChar.charAt(2));
-                int c1 = hexDigitToInt(escapedChar.charAt(3));
-                int c2 = hexDigitToInt(escapedChar.charAt(4));
-                int c3 = hexDigitToInt(escapedChar.charAt(5));
+            if ((escapedChar.substr(0,2) == "\\u") && escapedChar.length() == 6) {
+                int c0 = hexDigitToInt(escapedChar[2]);
+                int c1 = hexDigitToInt(escapedChar[3]);
+                int c2 = hexDigitToInt(escapedChar[4]);
+                int c3 = hexDigitToInt(escapedChar[5]);
                 return (char)((c0 << 12) | (c1 << 8) | (c2 << 4) | c3);
             }
             else {
-                throw new IllegalArgumentException("Invalid character: " + escapedChar);
+                cout << "Invalid character: " + escapedChar;
+                abort();
             }
         }
     }
 
     /** Get the sequence of (possibly escaped) characters in a char range string. */
-    public static List<String> getCharRangeChars(String str) {
-        var charRangeChars = new ArrayList<String>();
+    static vector<string> getCharRangeChars(string str) {
+        vector<string> charRangeChars;
         for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+            char c = str[i];
             if (c == '\\') {
                 if (i == str.length() - 1) {
                     // Should not happen
-                    throw new IllegalArgumentException("Got backslash at end of quoted string");
+                    cout << "Got backslash at end of quoted string";
+                    abort();
                 }
-                if (str.charAt(i + 1) == 'u') {
+                if (str[i + 1] == 'u') {
                     if (i > str.length() - 6) {
                         // Should not happen
-                        throw new IllegalArgumentException("Truncated Unicode character sequence");
+                        cout << "Truncated Unicode character sequence";
+                        abort();
                     }
-                    charRangeChars.add(Character.toString(unescapeChar(str.substring(i, i + 6))));
+                    charRangeChars.push_back(to_string(unescapeChar(str.substr(i, 6))));
                     i += 5; // Consume escaped characters
                 }
                 else {
-                    var escapeSeq = str.substring(i, i + 2);
-                    if (escapeSeq.equals("\\-") || escapeSeq.equals("\\^") || escapeSeq.equals("\\]")
-                        || escapeSeq.equals("\\\\")) {
+                    string escapeSeq = str.substr(i, 2);
+                    if (escapeSeq == "\\-" || escapeSeq == "\\^" || escapeSeq == "\\]"
+                        || escapeSeq == "\\\\") {
                         // Preserve range-specific escaping for char ranges
-                        charRangeChars.add(escapeSeq);
+                        charRangeChars.push_back(escapeSeq);
                     }
                     else {
-                        charRangeChars.add(Character.toString(unescapeChar(escapeSeq)));
+                        charRangeChars.push_back(to_string(unescapeChar(escapeSeq)));
                     }
                     i++; // Consume escaped character
                 }
             }
             else {
-                charRangeChars.add(Character.toString(c));
+                charRangeChars.push_back(to_string(c));
             }
         }
         return charRangeChars;
     }
 
     /** Unescape a string. */
-    public static String unescapeString(String str) {
-        StringBuilder buf = new StringBuilder();
+    static string unescapeString(string str) {
+        string buf;
         for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+            char c = str[i];
             if (c == '\\') {
                 if (i == str.length() - 1) {
                     // Should not happen
-                    throw new IllegalArgumentException("Got backslash at end of quoted string");
+                    cout << "Got backslash at end of quoted string";
+                    abort();
                 }
-                if (str.charAt(i + 1) == 'u') {
+                if (str[i + 1] == 'u') {
                     if (i > str.length() - 6) {
                         // Should not happen
-                        throw new IllegalArgumentException("Truncated Unicode character sequence");
+                        cout << "Truncated Unicode character sequence";
                     }
-                    buf.append(unescapeChar(str.substring(i, i + 6)));
+                    buf.append(to_string(unescapeChar(str.substr(i, 6))));
                     i += 5; // Consume escaped characters
                 }
                 else {
-                    var escapeSeq = str.substring(i, i + 2);
-                    buf.append(unescapeChar(escapeSeq));
+                    string escapeSeq = str.substr(i,  2);
+                    buf.append(to_string(unescapeChar(escapeSeq)));
                     i++; // Consume escaped character
                 }
             }
             else {
-                buf.append(c);
+                buf.append(to_string(c));
             }
         }
-        return buf.toString();
+        return buf;
     }
 
     /** Escape a character. */
-    private static String escapeChar(char c) {
+    static string escapeChar(char c) {
         if (c >= 32 && c <= 126) {
-            return Character.toString(c);
+            return to_string(c);
         }
         else if (c == '\n') {
             return "\\n";
@@ -203,12 +207,12 @@ public:
             return "\\b";
         }
         else {
-            return "\\u" + String.format("%04x", (int)c);
+            return "\\u" + to_string(format("%04x", (int)c));
         }
     }
 
     /** Escape a single-quoted character. */
-    public static String escapeQuotedChar(char c) {
+    static string escapeQuotedChar(char c) {
         if (c == '\'') {
             return "\\'";
         }
@@ -221,7 +225,7 @@ public:
     }
 
     /** Escape a character. */
-    public static String escapeQuotedStringChar(char c) {
+    static string escapeQuotedStringChar(char c) {
         if (c == '"') {
             return "\\\"";
         }
@@ -234,7 +238,7 @@ public:
     }
 
     /** Escape a character for inclusion in a character range pattern. */
-    public static String escapeCharRangeChar(char c) {
+    static string escapeCharRangeChar(char c) {
         if (c == ']') {
             return "\\]";
         }
@@ -253,12 +257,12 @@ public:
     }
 
     /** Escape a string. */
-    public static String escapeString(String str) {
-        var buf = new StringBuilder();
+    static string escapeString(string str) {
+        string buf;
         for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+            char c = str[i];
             buf.append(c == '"' ? "\\\"" : escapeQuotedStringChar(c));
         }
-        return buf.toString();
+        return buf;
     }
-}
+};

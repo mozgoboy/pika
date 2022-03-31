@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cstdio>
-#include "Clause.hpp";
+#include "Clause.hpp"
 
 class MemoKey
 {

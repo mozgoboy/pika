@@ -34,7 +34,7 @@ public:
 
 	string toString() {
 		if (toStringCached.empty()) {
-			toStringCached = '"' + StringUtils.escapeString(str) + '"';
+			toStringCached = '"' + StringUtils::escapeString(str) + '"';
 		}
 		return toStringCached;
 	}

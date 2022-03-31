@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Clause.hpp";
-#include "First.hpp";
-#include "OneOrMore.hpp";
+#include "Clause.hpp"
+#include "First.hpp"
+#include "OneOrMore.hpp"
 
 class Match
 {

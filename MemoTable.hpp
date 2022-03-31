@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Clause.hpp";
-#include "NotFollowedBy.hpp";
-#include "Grammar.hpp";
-#include "IntervalUnion.hpp";
-#include <queue>;
+#include "Clause.hpp"
+#include "NotFollowedBy.hpp"
+#include "Grammar.hpp"
+#include "IntervalUnion.hpp"
+#include <queue>
 
 class MemoTable
 {

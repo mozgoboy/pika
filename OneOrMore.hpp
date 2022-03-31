@@ -41,7 +41,7 @@
 
 class OneOrMore : public Clause {
     TypesOfClauses TypeOfClause = TypesOfClauses::OneOrMore;
-    OneOrMore(Clause subClause) : Clause(vector<Clause> { subClause }) {
+    OneOrMore(Clause* subClause) : Clause(vector<Clause*> { subClause }) {
     }
 
     void determineWhetherCanMatchZeroChars() {
