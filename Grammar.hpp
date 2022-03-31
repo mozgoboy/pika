@@ -14,7 +14,7 @@
 #include "RuleRef.hpp"
 #include "Clause.hpp"
 #include "Nothing.hpp"
-
+#include <ranges>
 class Grammar
 {
 private:
@@ -29,7 +29,6 @@ public:
 	{
 		Rule* topLevelRule = rules[0];
 		unordered_map<string, vector<Rule*>> ruleNameToRules;
-		vector<Rule*> rulesWithName;
 		for (auto rule : rules)
 		{
 			if (rule->ruleName.empty()) {
@@ -37,116 +36,123 @@ public:
 				abort();
 			}
 			if (rule->labeledClause->clause->TypeOfClause == TypesOfClauses::RuleRef
-				&& ((RuleRef)rule.labeledClause.clause).refdRuleName.equals(rule.ruleName)) {
+				&& ((RuleRef*)rule->labeledClause->clause)->refdRuleName == rule->ruleName) {
 				// Make sure rule doesn't refer only to itself
-				throw new IllegalArgumentException(
-					"Rule cannot refer to only itself: " + rule.ruleName + "[" + rule.precedence + "]");
+				cout <<	"Rule cannot refer to only itself: " + rule->ruleName + "[" + to_string(rule->precedence) + "]";
 			}
-			if (ruleNameToRules.find(rule.ruleName) == ruleNameToRules.end()) 
-			{
-				rulesWithName.clear();
-				ruleNameToRules[rule.ruleName] = rulesWithName;
+			vector<Rule*> rulesWithName = ruleNameToRules[rule->ruleName];
+			if (rulesWithName.empty()) {
+				ruleNameToRules[rule->ruleName] = rulesWithName;
 			}
-			else
-			{
-				rulesWithName = ruleNameToRules[rule.ruleName];
-			}
-
+			
 			// тут есть моментик что rulesWithName достаём из анордеред мапа если существует, а если нет то создаём 
 
 			rulesWithName.push_back(rule);
-			GrammarUtils.checkNoRefCycles(rule.labeledClause.clause, rule.ruleName, new unordered_set<Clause>());
+			GrammarUtils::checkNoRefCycles(rule->labeledClause->clause, rule->ruleName, new unordered_set<Clause>());
 		}
 
-		allRules.clear();
-		for (auto x : rules)
-		{
-			allRules.push_back(x);
-		}
+		allRules = rules;
 		vector<Clause> lowestPrecedenceClauses;
-
-		/*
-		for (auto ent : ruleNameToRules.entrySet()) 
+		unordered_map<string,string> ruleNameToLowestPrecedenceLevelRuleName;
+		
+		for (auto ent : ruleNameToRules) 
 		{
-			var rulesWithName = ent.getValue();
+			vector<Rule*> rulesWithName = ent.second;
 			if (rulesWithName.size() > 1) 
 			{
-				var ruleName = ent.getKey();
-				GrammarUtils.handlePrecedence(ruleName, rulesWithName, lowestPrecedenceClauses,
+				string ruleName = ent.first;
+				GrammarUtils::handlePrecedence(ruleName, rulesWithName, lowestPrecedenceClauses,
 					ruleNameToLowestPrecedenceLevelRuleName);
 			}
-		}*/
-
+		}
+		unordered_map<string, Rule*> ruleNameWithPrecedenceToRule;
 		// Закоменченное выше вызывает метод entrySet, который вовращает что-то типа набора пар ключ значение, я если честно не понимаю как оно должно прописываться.
-
-		unordered_set<string, Rule> ruleNameWithPrecedenceToRule;
+		for (auto rule : allRules) {
+			// The handlePrecedence call above added the precedence to the rule name as a suffix
+			if (!  (ruleNameWithPrecedenceToRule.insert_or_assign(rule->ruleName, rule).second) ) {
+				// Should not happen
+				cout << "Duplicate rule name " + rule->ruleName;
+			}
+		}
 
 		for (auto rule : allRules) 
 		{
-			rule.labeledClause.clause.registerRule(rule);
+			rule->labeledClause->clause->registerRule(rule);
 		}
 
-		unordered_map<string, Clause> toStringToClause;
+		unordered_map<string, Clause*> toStringToClause;
 		for (auto rule : allRules) 
 		{
-			rule.labeledClause.clause = GrammarUtils.intern(rule.labeledClause.clause, toStringToClause);
+			rule->labeledClause->clause = GrammarUtils::intern(rule->labeledClause->clause, toStringToClause);
 		}
 
-		set<Clause> clausesVisitedResolveRuleRefs;
+		set<Clause*> clausesVisitedResolveRuleRefs;
 		for (auto rule : allRules) 
 		{
-			GrammarUtils.resolveRuleRefs(rule.labeledClause, ruleNameWithPrecedenceToRule, ruleNameToLowestPrecedenceLevelRuleName, clausesVisitedResolveRuleRefs);
+			GrammarUtils::resolveRuleRefs(rule->labeledClause, ruleNameWithPrecedenceToRule, ruleNameToLowestPrecedenceLevelRuleName, clausesVisitedResolveRuleRefs);
 		}
 
-		allClauses = GrammarUtils.findClauseTopoSortOrder(topLevelRule, allRules, lowestPrecedenceClauses);
+		allClauses = GrammarUtils::findClauseTopoSortOrder(topLevelRule, allRules, lowestPrecedenceClauses);
 
-		for (Clause clause : allClauses) 
+		for (Clause* clause : allClauses) 
 		{
-			clause.determineWhetherCanMatchZeroChars();
+			clause->determineWhetherCanMatchZeroChars();
 		}
 
-		for (auto clause : allClauses) 
+		for (Clause* clause : allClauses) 
 		{
-			clause.addAsSeedParentClause();
+			clause->addAsSeedParentClause();
 		}
 	}
 
-	MemoTable parse(string input) {
-		auto priorityQueue = new priority_queue<Clause>((c1, c2)->c1.clauseIdx - c2.clauseIdx);
+	MemoTable* parse(string input) {
+		priority_queue< Clause*, vector<Clause*>, cmp > priorityQueue;
 
-		auto memoTable = new MemoTable(this, input);
+		MemoTable memoTable(this, input);
 
-		/* auto terminals = allClauses.stream().filter(clause->clause instanceof Terminal
-			// Don't match Nothing everywhere -- it always matches
-			&& !(clause instanceof Nothing)) //
-			.collect(Collectors.toList()); */
+		vector<Clause*> terminals;
+		for (auto clause : allClauses) {
+			if ((clause->TypeOfClause == TypesOfClauses::CharSeq ||
+				clause->TypeOfClause == TypesOfClauses::CharSet ||
+				clause->TypeOfClause == TypesOfClauses::Start) && clause->TypeOfClause != TypesOfClauses::Nothing)
+				terminals.push_back(clause);
+		}
 
 		// То что сверху пока тоже не очень ясно
 
 		// Main parsing loop
 		for (int startPos = input.length() - 1; startPos >= 0; --startPos) {
-			priorityQueue.addAll(terminals);
-			while (!priorityQueue.isEmpty()) {
+			if (DEBUG) {
+				cout << "=============== POSITION: " << startPos << " CHARACTER:["
+					+ StringUtils::escapeQuotedChar(input[startPos]) << "] ===============";
+			}
+			for (Clause* terminal : terminals)
+			{
+				priorityQueue.push(terminal);
+			}
+			//priorityQueue.addAll(terminals);
+			while (!priorityQueue.empty()) {
 				// Remove a clause from the priority queue (ordered from terminals to toplevel clauses)
-				auto clause = priorityQueue.remove();
-				auto memoKey = new MemoKey(clause, startPos);
-				auto match = clause.match(memoTable, memoKey, input);
+				auto clause = priorityQueue.top();
+				priorityQueue.pop();
+				MemoKey memoKey(clause, startPos);
+				Match* match = clause->match(&memoTable, &memoKey, input);
 				memoTable.addMatch(memoKey, match, priorityQueue);
 			}
 		}
-		return memoTable;
+		return &memoTable;
 	}
 
 
-	Rule getRule(string ruleNameWithPrecedence) 
+	Rule* getRule(string ruleNameWithPrecedence) 
 	{
-		auto rule = ruleNameWithPrecedenceToRule[ruleNameWithPrecedence];
+		Rule* rule = ruleNameWithPrecedenceToRule[ruleNameWithPrecedence];
 		return rule;
 	}
 
-	vector<Match> getNonOverlappingMatches(string ruleName, MemoTable memoTable) 
+	vector<Match*> getNonOverlappingMatches(string ruleName, MemoTable* memoTable) 
 	{
-		return memoTable.getNonOverlappingMatches(getRule(ruleName).labeledClause.clause);
+		return memoTable->getNonOverlappingMatches(getRule(ruleName)->labeledClause->clause);
 	}
 	
 	/*
@@ -157,4 +163,13 @@ public:
 	*/
 
 	//Пока не ясно с аналогом на плюсах у навигаблмэп.
+};
+
+
+struct cmp
+{
+		bool operator()(const Clause*& c1, const Clause*& c2)    // pass by a const reference
+		{
+			return c1->clauseIdx > c2->clauseIdx;
+		}
 };

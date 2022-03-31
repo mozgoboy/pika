@@ -44,6 +44,7 @@
  * the clauses they reference by name before parsing begins, in order to optimize parsing.
  */
 class RuleRef : public Clause {
+public:
     string refdRuleName;
 
     RuleRef(string refdRuleName) : Clause(vector<Clause*> {}) {
