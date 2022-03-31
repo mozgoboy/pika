@@ -37,7 +37,7 @@ class ClauseFactory
             return subClause;
         }
         OneOrMore oom(subClause);
-        return &oom;
+        return (Clause*)&oom;
     }
 
     Clause* optional(Clause* subClause) 
@@ -90,7 +90,7 @@ class ClauseFactory
         }
         else if (subClause->TypeOfClause == TypesOfClauses::NotFollowedBy)
         {
-            FollowedBy X(subClause->labeledSubClauses[0].clause);
+            FollowedBy X(subClause->labeledSubClauses[0]->clause);
             return &X;
         }
         else if (subClause->TypeOfClause == TypesOfClauses::FollowedBy || subClause->TypeOfClause == TypesOfClauses::Start)
