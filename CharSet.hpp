@@ -89,7 +89,7 @@ public:
 		if (isSingleChar) {
 			char c = (char)chars.nextSetBit(0);
 			buf.append("'");
-			buf.append(StringUtils.escapeQuotedChar(c));
+			buf.append(StringUtils::escapeQuotedChar(c));
 			buf.append("'");
 		}
 		else {

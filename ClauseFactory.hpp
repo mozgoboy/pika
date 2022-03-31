@@ -102,7 +102,7 @@ class ClauseFactory
                 */
         }
         NotFollowedBy X(subClause);
-        return &X;
+        return (Clause*) &X;
     }
 
     Clause* start() 
@@ -162,24 +162,24 @@ class ClauseFactory
     CharSet cRange(string charRangeStr) 
     {
         bool invert = charRangeStr[0] == '^';
-        auto charList = StringUtils::getCharRangeChars(invert ? charRangeStr.substring(1) : charRangeStr); // Пока не совсем понял что эта функция делает
+        auto charList = StringUtils::getCharRangeChars(invert ? charRangeStr.substr(1) : charRangeStr); // Пока не совсем понял что эта функция делает
         auto chars = new bitset(0xffff);
         for (int i = 0; i < charList.size(); i++) {
-            auto c = charList.get(i);
+            auto c = charList[i];
             if (c.length() == 2) 
             {
                 // Unescape \^, \-, \], \\
                 c = c.substring(1);
             }
-            auto c0 = c.charAt(0);
-            if (i <= charList.size() - 3 && charList.get(i + 1).equals("-")) 
+            auto c0 = c[0];
+            if (i <= charList.size() - 3 && charList[i + 1] == "-") 
             {
-                auto cEnd = charList.get(i + 2);
+                auto cEnd = charList[i + 2];
                 if (cEnd.length() == 2) 
                 {
-                    cEnd = cEnd.substring(1);
+                    cEnd = cEnd.substr(1);
                 }
-                auto cEnd0 = cEnd.charAt(0);
+                auto cEnd0 = cEnd[0];
                 if (cEnd0 < c0) 
                 {
                     /*
