@@ -108,7 +108,7 @@ public:
 	MemoTable* parse(string input) {
 		priority_queue< Clause*, vector<Clause*>, cmp > priorityQueue;
 
-		MemoTable memoTable(this, input);
+		MemoTable* memoTable = new MemoTable(this, input);
 
 		vector<Clause*> terminals;
 		for (auto clause : allClauses) {
@@ -136,11 +136,11 @@ public:
 				auto clause = priorityQueue.top();
 				priorityQueue.pop();
 				MemoKey memoKey(clause, startPos);
-				Match* match = clause->match(&memoTable, &memoKey, input);
-				memoTable.addMatch(memoKey, match, priorityQueue);
+				Match* match = clause->match(memoTable, &memoKey, input);
+				memoTable->addMatch(memoKey, match, priorityQueue);
 			}
 		}
-		return &memoTable;
+		return memoTable;
 	}
 
 

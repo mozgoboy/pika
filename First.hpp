@@ -75,9 +75,9 @@ public:
             Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
             if (subClauseMatch != nullptr) {
                 // Return a match for the first matching subclause
-                Match mast(memoKey, /* len = */ subClauseMatch->len,
+                Match* mast = new Match(memoKey, /* len = */ subClauseMatch->len,
                 /* firstMatchingSubclauseIdx = */ subClauseIdx, vector<Match*>{ subClauseMatch });
-                return &mast;
+                return mast;
             }
         }
         return nullptr;

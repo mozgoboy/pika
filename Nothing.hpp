@@ -22,8 +22,8 @@ public:
 	{
 		if (memoKey->startPos == 0)
 		{
-			Match mast(memoKey);
-			return &mast;
+			Match* mast = new(memoKey);
+			return mast;
 		}
 		return nullptr;
 	}

@@ -77,8 +77,8 @@ public:
 			bitset<8> b(c);
 			if ((chars != NULL && (chars == b)) || (invertedChars != NULL && !(invertedChars == b))) 
 			{
-				Match mast(memoKey, /* len = */ 1, Match::NO_SUBCLAUSE_MATCHES);
-				return &mast
+				Match* mast = new Match(memoKey, /* len = */ 1, Match::NO_SUBCLAUSE_MATCHES);
+				return mast;
 			}
 		}
 		return nullptr;

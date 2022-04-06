@@ -105,8 +105,8 @@ public:
             currStartPos += subClauseMatch->len;
         }
         // All subclauses matched, so the Seq clause matches
-        Match mast(memoKey, /* len = */ currStartPos - memoKey->startPos, subClauseMatches);
-        return &mast;
+        Match*  mast = new Match(memoKey, /* len = */ currStartPos - memoKey->startPos, subClauseMatches);
+        return mast;
     }
     /** Пока не уверены, наверное сравнение с имеющимися элементами в мемо чтобы не разбирать. Но это не точно. */
 

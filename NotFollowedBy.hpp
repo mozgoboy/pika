@@ -61,8 +61,8 @@ public:
         Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
         if (subClauseMatch == nullptr) {
             // If there is no valid subclause match, return a new zero-length match
-            Match mast(memoKey);
-            return &mast;
+            Match* mast = new Match(memoKey);
+            return mast;
         }
         return nullptr;
     }
