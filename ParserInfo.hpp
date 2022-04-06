@@ -288,7 +288,7 @@ public:
             cout << ' ';
         }
         cout << ' ';
-        for (int i = 0; i < memoTable.input.length(); i++) 
+        for (int i = 0; i < memoTable->input.length(); i++) 
         {
             cout << i % 10;
             cout << ' ';
@@ -301,9 +301,9 @@ public:
             cout << ' ';
         }
         cout << ' ';
-        for (int i = 0; i < memoTable.input.length(); i++) 
+        for (int i = 0; i < memoTable->input.length(); i++) 
         {
-            cout << StringUtils::replaceNonASCII(memoTable.input[i]);
+            cout << StringUtils::replaceNonASCII(memoTable->input[i]);
             cout << ' ';
         }
         cout << endl;
