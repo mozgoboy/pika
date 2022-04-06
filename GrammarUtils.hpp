@@ -11,7 +11,7 @@
 class GrammarUtils
 {
 private:
-    void findTerminals(Clause* clause, set<Clause*> visited, vector<Clause*> terminalsOut) 
+    static void findTerminals(Clause* clause, set<Clause*> visited, vector<Clause*> terminalsOut) 
     {
         if (visited.insert(clause).second) 
         {
@@ -30,7 +30,7 @@ private:
         }
     }
 
-    void findReachableClauses(Clause* clause, set<Clause*> visited, vector<Clause*> revTopoOrderOut) 
+    static void findReachableClauses(Clause* clause, set<Clause*> visited, vector<Clause*> revTopoOrderOut) 
     {
         if (visited.insert(clause).second) 
         {
@@ -43,7 +43,7 @@ private:
         }
     }
 
-    void findCycleHeadClauses(Clause* clause, set<Clause*> discovered, set<Clause*> finished, set<Clause*> cycleHeadClausesOut) 
+    static void findCycleHeadClauses(Clause* clause, set<Clause*> discovered, set<Clause*> finished, set<Clause*> cycleHeadClausesOut) 
     {
         if (clause->TypeOfClause == TypesOfClauses::RuleRef)
         {
@@ -71,7 +71,7 @@ private:
         finished.insert(clause);
     }
 
-    int countRuleSelfReferences(Clause* clause, string ruleNameWithoutPrecedence)
+    static int countRuleSelfReferences(Clause* clause, string ruleNameWithoutPrecedence)
     {
         if (clause->TypeOfClause == TypesOfClauses::RuleRef && ((RuleRef*)clause)->refdRuleName == ruleNameWithoutPrecedence)
         {
@@ -89,7 +89,7 @@ private:
         }
     }
 
-    int rewriteSelfReferences(Clause* clause, Rule::Associativity associativity, int numSelfRefsSoFar, int numSelfRefs, string selfRefRuleName, bool isHighestPrec, string currPrecRuleName, string nextHighestPrecRuleName) 
+    static int rewriteSelfReferences(Clause* clause, Rule::Associativity associativity, int numSelfRefsSoFar, int numSelfRefs, string selfRefRuleName, bool isHighestPrec, string currPrecRuleName, string nextHighestPrecRuleName) 
     {
         if (numSelfRefsSoFar < numSelfRefs) 
         {
@@ -153,7 +153,7 @@ private:
 
     
 public:
-    vector<Clause*> findClauseTopoSortOrder(Rule* topLevelRule, vector<Rule*> allRules, vector<Clause*> lowestPrecedenceClauses)
+    static vector<Clause*> findClauseTopoSortOrder(Rule* topLevelRule, vector<Rule*> allRules, vector<Clause*> lowestPrecedenceClauses)
     {
         vector<Clause*> allClausesUnordered;
         set<Clause*> topLevelVisited;
@@ -235,7 +235,7 @@ public:
         return allClauses;
     }
 
-    void checkNoRefCycles(Clause* clause, string selfRefRuleName, set<Clause*> visited) 
+    static void checkNoRefCycles(Clause* clause, string selfRefRuleName, set<Clause*> visited) 
     {
         if (visited.insert(clause).second) 
         {
@@ -255,7 +255,7 @@ public:
         visited.erase(clause);
     }
 
-    void handlePrecedence(string ruleNameWithoutPrecedence, vector<Rule*> rules, vector<Clause*> lowestPrecedenceClauses, unordered_map<string, string> ruleNameToLowestPrecedenceLevelRuleName) 
+    static void handlePrecedence(string ruleNameWithoutPrecedence, vector<Rule*> rules, vector<Clause*> lowestPrecedenceClauses, map<string, string> ruleNameToLowestPrecedenceLevelRuleName) 
     {
         // Rewrite rules
         // 
@@ -338,6 +338,75 @@ public:
         var lowestPrecRule = precedenceOrder.get(0);
         lowestPrecedenceClauses.add(lowestPrecRule.labeledClause.clause);
         ruleNameToLowestPrecedenceLevelRuleName.put(ruleNameWithoutPrecedence, lowestPrecRule.ruleName);
+    }
+
+    /**
+ * Recursively call toString() on the clause tree for this {@link Rule}, so that toString() values are cached
+ * before {@link RuleRef} objects are replaced with direct references, and so that shared subclauses are only
+ * matched once.
+ */
+    static Clause* intern(Clause* clause, map<string, Clause*> toStringToClause) {
+        // Call toString() on (and intern) subclauses, bottom-up
+        for (int i = 0; i < clause->labeledSubClauses.size(); i++) {
+            clause->labeledSubClauses[i]->clause = intern(clause->labeledSubClauses[i]->clause, toStringToClause);
+        }
+        // Call toString after recursing to child nodes
+        string toStr = clause->toString();
+
+        // Intern the clause based on the toString value
+        auto prevInternedClause = toStringToClause.try_emplace(toStr, clause);
+
+        // Return the previously-interned clause, if present, otherwise the clause, if it was just interned
+        return prevInternedClause.second  ? prevInternedClause.first->second : clause;
+    }
+
+    // -------------------------------------------------------------------------------------------------------------
+
+    /** Resolve {@link RuleRef} clauses to a reference to the named rule. */
+    static void resolveRuleRefs(LabeledClause* labeledClause, map<string, Rule*> ruleNameToRule,
+        map<string, string> ruleNameToLowestPrecedenceLevelRuleName, set<Clause*> visited) {
+        if (labeledClause->clause->TypeOfClause == TypesOfClauses::RuleRef) {
+            // Follow a chain of from name in RuleRef objects until a non-RuleRef is reached
+            auto currLabeledClause = labeledClause;
+            set<Clause*> visitedClauses;
+            while (currLabeledClause->clause->TypeOfClause == TypesOfClauses::RuleRef) {
+                if (!visitedClauses.insert(currLabeledClause->clause).second) {
+                        cout << "Reached toplevel RuleRef cycle: " + currLabeledClause->clause->toString();
+                }
+                // Follow a chain of from name in RuleRef objects until a non-RuleRef is reached
+                auto refdRuleName = ((RuleRef*)currLabeledClause-> clause)->refdRuleName;
+
+                // Check if the rule is the reference to the lowest precedence rule of a precedence hierarchy
+                auto lowestPrecRuleName = ruleNameToLowestPrecedenceLevelRuleName[refdRuleName];
+
+                // Look up Rule based on rule name
+                auto refdRule = ruleNameToRule[lowestPrecRuleName.empty() ? refdRuleName : lowestPrecRuleName];
+                if (refdRule == nullptr) {
+                    cout << "Unknown rule name: " + refdRuleName;
+                }
+                currLabeledClause = refdRule->labeledClause;
+            }
+
+            // Set current clause to a direct reference to the referenced rule
+            labeledClause->clause = currLabeledClause->clause;
+
+            // Copy across AST node label, if any
+            if (labeledClause->astNodeLabel.empty()) {
+                labeledClause->astNodeLabel = currLabeledClause->astNodeLabel;
+            }
+            // Stop recursing at RuleRef
+        }
+        else {
+            if (visited.insert(labeledClause->clause).second) {
+                auto labeledSubClauses = labeledClause->clause->labeledSubClauses;
+                for (auto subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
+                    auto labeledSubClause = labeledSubClauses[subClauseIdx];
+                    // Recurse through subclause tree if subclause was not a RuleRef 
+                    resolveRuleRefs(labeledSubClause, ruleNameToRule, ruleNameToLowestPrecedenceLevelRuleName,
+                        visited);
+                }
+            }
+        }
     }
 
 };

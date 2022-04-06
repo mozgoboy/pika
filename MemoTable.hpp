@@ -34,7 +34,7 @@ public:
         {
             return bestMatch;
         }
-        else if (memoKey.clause->TypeOfClause == TypesofClauses::NotFollowedBy)
+        else if (memoKey->clause->TypeOfClause == TypesofClauses::NotFollowedBy)
         {
             return memoKey.clause.match(*this, memoKey, input);
         }
