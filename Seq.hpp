@@ -93,7 +93,7 @@ public:
         for (int subClauseIdx = 0; subClauseIdx < labeledSubClauses.size(); subClauseIdx++) {
             Clause* subClause = labeledSubClauses[subClauseIdx]->clause;
             MemoKey subClauseMemoKey(subClause, currStartPos);
-            Match* subClauseMatch = memoTable->lookUpBestMatch(subClauseMemoKey);
+            Match* subClauseMatch = memoTable->lookUpBestMatch(&subClauseMemoKey);
             if (subClauseMatch == nullptr) {
                 // Fail after first subclause fails to match
                 return nullptr;

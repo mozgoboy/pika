@@ -44,18 +44,18 @@ public:
 	{
 		if (subClauseMatches.size() == 0) {
 			// This is a terminals, or an empty placeholder match returned by MemoTable.lookUpBestMatch
-			auto x = new vector<pair<string, Match*>>;
+			vector<pair<string, Match*>> x;
 			return x;
 			/*  ак € пон€л у них просто возвращаетс€ пустой лист. */
 		}
 		if (memoKey->clause->TypeOfClause == TypesOfClauses::OneOrMore) 
 		{
 			// Flatten right-recursive structure of OneOrMore parse subtree
-			auto subClauseMatchesToUse = new vector<pair<string, Match*>>();
+			vector<pair<string, Match*>> subClauseMatchesToUse;
 			for (auto curr = this; curr->subClauseMatches.size() > 0;)
 			{
 				// Add head of right-recursive list to arraylist, paired with its AST node label, if present
-				subClauseMatchesToUse->push_back(make_pair(curr->memoKey->clause->labeledSubClauses[0]->astNodeLabel, curr->subClauseMatches[0]));
+				subClauseMatchesToUse.push_back(make_pair(curr->memoKey->clause->labeledSubClauses[0]->astNodeLabel, curr->subClauseMatches[0]));
 				if (curr->subClauseMatches.size() == 1) 
 				{
 					// The last element of the right-recursive list will have a single element, i.e. (head),
@@ -70,17 +70,17 @@ public:
 		else if (memoKey->clause->TypeOfClause == TypesOfClauses::First) 
 		{
 			// For First, pair the match with the AST node label from the subclause of idx firstMatchingSubclauseIdx
-			auto x = new vector<pair<string, Match*>>();
-			x->push_back(make_pair(memoKey->clause->labeledSubClauses[firstMatchingSubClauseIdx]->astNodeLabel, subClauseMatches[0]));
+			vector<pair<string, Match*>> x;
+			x.push_back(make_pair(memoKey->clause->labeledSubClauses[firstMatchingSubClauseIdx]->astNodeLabel, subClauseMatches[0]));
 			return x;
 		}
 		else 
 		{
 			// For other clause types, return labeled subclause matches
 			auto numSubClauses = memoKey->clause->labeledSubClauses.size();
-			auto subClauseMatchesToUse = new vector<pair<string, Match*>>(numSubClauses);
+			vector<pair<string, Match*>> subClauseMatchesToUse(numSubClauses);
 			for (int i = 0; i < numSubClauses; i++) {
-				subClauseMatchesToUse->push_back(
+				subClauseMatchesToUse.push_back(
 					make_pair(memoKey->clause->labeledSubClauses[i]->astNodeLabel, subClauseMatches[i]));
 			}
 			return subClauseMatchesToUse;
