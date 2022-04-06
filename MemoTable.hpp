@@ -34,13 +34,13 @@ public:
         {
             return bestMatch;
         }
-        else if (memoKey->clause->TypeOfClause == TypesofClauses::NotFollowedBy)
+        else if (memoKey->clause->TypeOfClause == TypesOfClauses::NotFollowedBy)
         {
-            return memoKey.clause.match(*this, memoKey, input);
+            return memoKey->clause->match(this, memoKey, input);
         }
-        else if (memoKey.clause.canMatchZeroChars) 
+        else if (memoKey->clause->canMatchZeroChars) 
         {
-            return Match(memoKey);
+            return new Match(memoKey);
         }
         return nullptr;
     }
@@ -52,7 +52,7 @@ public:
         {
             numMatchObjectsCreated++;
             auto oldMatch = memoTable[memoKey];
-            if ((oldMatch == nullptr || newMatch.isBetterThan(oldMatch)))
+            if ((oldMatch == nullptr) || newMatch->isBetterThan(oldMatch))
             {
                 memoTable[memoKey] = newMatch;
                 matchUpdated = true;
@@ -66,13 +66,13 @@ public:
                 */
             }
         }
-        for (int i = 0, ii = memoKey.clause.seedParentClauses.size(); i < ii; i++) 
+        for (int i = 0, ii = memoKey->clause->seedParentClauses.size(); i < ii; i++) 
         {
-            auto seedParentClause = memoKey.clause.seedParentClauses[i];
+            auto seedParentClause = memoKey->clause->seedParentClauses[i];
             // If there was a valid match, or if there was no match but the parent clause can match
             // zero characters, schedule the parent clause for matching. (This is part of the strategy
             // for minimizing the number of zero-length matches that are memoized.)
-            if (matchUpdated || seedParentClause.canMatchZeroChars) 
+            if (matchUpdated || seedParentClause->canMatchZeroChars) 
             {
                 priorityQueue.push(seedParentClause);
                 /*

@@ -94,12 +94,12 @@ public:
 		/* ѕотом пропишем здесь сравнение указателей*/
 	}
 
-	bool isBetterThan(Match oldMatch) {
-		if (oldMatch == *this) 
+	bool isBetterThan(Match* oldMatch) {
+		if (oldMatch == this) 
 		{
 			return false;
 		}
-		return this->len > oldMatch.len;
+		return this->len > oldMatch->len;
 	}
 
 	string toStringWithRuleNames() 
