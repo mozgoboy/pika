@@ -32,7 +32,9 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#include <map>
 
+using namespace std;
 /** Grammar utils. */
 class IntervalUnion {
 private:
