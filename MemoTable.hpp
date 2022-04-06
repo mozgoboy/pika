@@ -9,10 +9,10 @@
 class MemoTable
 {
 private:
-	unordered_map<MemoKey, Match> memoTable;
+	unordered_map<MemoKey*, Match*> memoTable;
 
 public:
-    Grammar grammar;
+    Grammar* grammar;
     string input;
     int counter = 0;
 
@@ -20,13 +20,13 @@ public:
     int numMatchObjectsMemoized;
     /* У них вместо инта используется AtomicInteger, типа он лучше подходит для параллельных вычислений, нужно ли нам это, пока не ясно. */
 
-    MemoTable(Grammar grammar, string input) 
+    MemoTable(Grammar* grammar, string input) 
     {
         this->grammar = grammar;
         this->input = input;
     }
 
-    Match lookUpBestMatch(MemoKey memoKey)
+    Match* lookUpBestMatch(MemoKey* memoKey)
     {
         auto bestMatch = memoTable[memoKey];
 
@@ -44,7 +44,7 @@ public:
         }
         return nullptr;
     }
-    void addMatch(MemoKey memoKey, Match newMatch, priority_queue<Clause> priorityQueue)
+    void addMatch(MemoKey* memoKey, Match* newMatch, priority_queue< Clause*, vector<Clause*>, cmp >  priorityQueue)
     {
         counter++;
         auto matchUpdated = false;

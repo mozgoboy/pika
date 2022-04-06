@@ -137,7 +137,7 @@ public:
 				priorityQueue.pop();
 				MemoKey memoKey(clause, startPos);
 				Match* match = clause->match(memoTable, &memoKey, input);
-				memoTable->addMatch(memoKey, match, priorityQueue);
+				memoTable->addMatch(&memoKey, match, priorityQueue);
 			}
 		}
 		return memoTable;

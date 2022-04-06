@@ -17,7 +17,7 @@ public:
 	Match()
 	{}
 
-	Match(MemoKey memoKey, int len, int firstMatchingSubClauseIdx, vector<Match> subClauseMatches)
+	Match(MemoKey* memoKey, int len, int firstMatchingSubClauseIdx, vector<Match*> subClauseMatches)
 	{
 		this->memoKey = memoKey;
 		this->len = len;
@@ -25,22 +25,22 @@ public:
 		this->subClauseMatches = subClauseMatches;
 	}
 
-	Match(MemoKey memoKey, int len, vector<Match> subClauseMatches) 
+	Match(MemoKey* memoKey, int len, vector<Match*> subClauseMatches) 
 	{
 		Match(memoKey, len, 0, subClauseMatches);
 	}
 
-	Match(MemoKey memoKey, int len) 
+	Match(MemoKey* memoKey, int len) 
 	{
 		Match(memoKey, len, 0, NO_SUBCLAUSE_MATCHES);
 	}
 
-	Match(MemoKey memoKey) 
+	Match(MemoKey* memoKey) 
 	{
 		Match(memoKey, 0);
 	}
 
-	vector<unordered_map<string, Match>> getSubClauseMatches() 
+	vector<pair<string, Match*>> getSubClauseMatches() 
 	{
 		if (subClauseMatches.size() == 0) {
 			// This is a terminals, or an empty placeholder match returned by MemoTable.lookUpBestMatch

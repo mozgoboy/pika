@@ -207,7 +207,10 @@ public:
             return "\\b";
         }
         else {
-            return "\\u" + to_string(format("%04x", (int)c));
+            char* buf;
+            sprintf(buf, "%04x", (int)c);
+            string buff(buf);
+            return "\\u" + buff;
         }
     }
 
