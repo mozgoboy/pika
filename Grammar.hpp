@@ -15,6 +15,16 @@
 #include "Clause.hpp"
 #include "Nothing.hpp"
 #include <ranges>
+
+
+struct cmp
+{
+	bool operator()(const Clause*& c1, const Clause*& c2)    // pass by a const reference
+	{
+		return c1->clauseIdx > c2->clauseIdx;
+	}
+};
+
 class Grammar
 {
 private:
@@ -167,10 +177,3 @@ public:
 };
 
 
-struct cmp
-{
-		bool operator()(const Clause*& c1, const Clause*& c2)    // pass by a const reference
-		{
-			return c1->clauseIdx > c2->clauseIdx;
-		}
-};

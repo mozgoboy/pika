@@ -274,12 +274,13 @@ public:
         unordered_map<int, Rule*> precedenceToRule;
         for (auto rule : rules) 
         {
-            /*
-            if (precedenceToRule.insert({ rule->precedence, rule }) != nullptr)
+            
+            if (!precedenceToRule.insert({ rule->precedence, rule }).second)
             {
-                throw new IllegalArgumentException("Multiple rules with name " + ruleNameWithoutPrecedence
-                    + (rule.precedence == -1 ? "" : " and precedence " + rule.precedence));
-            }*/
+                cout << "Multiple rules with name " + ruleNameWithoutPrecedence
+                    + (rule->precedence == -1 ? "" : " and precedence " + to_string(rule->precedence));
+                abort();
+            }
             // ¬ыше функци€ работает следующим образом, пытаетс€ засунуть в меп пару ключ значение, если такой ключ уже был то возвращает его значение, если его не было то заносит и возвращает null, пока не €сно, нужно нам это или нет.
         }
         // Get rules in ascending order of precedence
@@ -294,27 +295,27 @@ public:
         for (int precedenceIdx = 0; precedenceIdx < numPrecedenceLevels; precedenceIdx++) 
         {
             // Since there is more than one precedence level, update rule name to include precedence
-            auto rule = precedenceOrder.get(precedenceIdx);
-            rule.ruleName += "[" + rule.precedence + "]";
+            auto rule = precedenceOrder[precedenceIdx];
+            rule->ruleName += "[" + to_string(rule->precedence) + "]";
         }
 
         // Transform grammar rule to handle precence
         for (int precedenceIdx = 0; precedenceIdx < numPrecedenceLevels; precedenceIdx++) {
-            var rule = precedenceOrder.get(precedenceIdx);
+            auto rule = precedenceOrder[precedenceIdx];
 
             // Count the number of self-reference operands
-            var numSelfRefs = countRuleSelfReferences(rule.labeledClause.clause, ruleNameWithoutPrecedence);
+            auto numSelfRefs = countRuleSelfReferences(rule->labeledClause->clause, ruleNameWithoutPrecedence);
 
-            var currPrecRuleName = rule.ruleName;
-            var nextHighestPrecRuleName = precedenceOrder.get((precedenceIdx + 1) % numPrecedenceLevels).ruleName;
+            auto currPrecRuleName = rule->ruleName;
+            auto nextHighestPrecRuleName = precedenceOrder[(precedenceIdx + 1) % numPrecedenceLevels]->ruleName;
 
             // If a rule has 1+ self-references, need to rewrite rule to handle precedence and associativity
-            var isHighestPrec = precedenceIdx == numPrecedenceLevels - 1;
+            auto isHighestPrec = precedenceIdx == numPrecedenceLevels - 1;
             if (numSelfRefs >= 1) {
                 // Rewrite self-references to higher precedence or left- and right-recursive forms.
                 // (the toplevel clause of the rule, rule.labeledClause.clause, can't be a self-reference,
                 // since we already checked for that, and IllegalArgumentException would have been thrown.)
-                rewriteSelfReferences(rule.labeledClause.clause, rule.associativity, 0, numSelfRefs,
+                rewriteSelfReferences(rule->labeledClause->clause, rule->associativity, 0, numSelfRefs,
                     ruleNameWithoutPrecedence, isHighestPrec, currPrecRuleName, nextHighestPrecRuleName);
             }
 
@@ -324,20 +325,20 @@ public:
             if (!isHighestPrec) {
                 // Move rule's toplevel clause (and any AST node label it has) into the first subclause of
                 // a First clause that fails over to the next highest precedence level
-                var first = new First(rule.labeledClause.clause, new RuleRef(nextHighestPrecRuleName));
+                auto first = new First(vector<Clause*> { rule->labeledClause->clause, new RuleRef(nextHighestPrecRuleName) });
                 // Move any AST node label down into first subclause of new First clause, so that label doesn't
                 // apply to the final failover rule reference
-                first.labeledSubClauses[0].astNodeLabel = rule.labeledClause.astNodeLabel;
-                rule.labeledClause.astNodeLabel = null;
+                first->labeledSubClauses[0]->astNodeLabel = rule->labeledClause->astNodeLabel;
+                rule->labeledClause->astNodeLabel = "";
                 // Replace rule clause with new First clause
-                rule.labeledClause.clause = first;
+                rule->labeledClause->clause = first;
             }
         }
 
         // Map the bare rule name (without precedence suffix) to the lowest precedence level rule name
-        var lowestPrecRule = precedenceOrder.get(0);
-        lowestPrecedenceClauses.add(lowestPrecRule.labeledClause.clause);
-        ruleNameToLowestPrecedenceLevelRuleName.put(ruleNameWithoutPrecedence, lowestPrecRule.ruleName);
+        auto lowestPrecRule = precedenceOrder[0];
+        lowestPrecedenceClauses.push_back(lowestPrecRule->labeledClause->clause);
+        ruleNameToLowestPrecedenceLevelRuleName[ruleNameWithoutPrecedence] = lowestPrecRule->ruleName;
     }
 
     /**
@@ -372,6 +373,7 @@ public:
             while (currLabeledClause->clause->TypeOfClause == TypesOfClauses::RuleRef) {
                 if (!visitedClauses.insert(currLabeledClause->clause).second) {
                         cout << "Reached toplevel RuleRef cycle: " + currLabeledClause->clause->toString();
+                        abort();
                 }
                 // Follow a chain of from name in RuleRef objects until a non-RuleRef is reached
                 auto refdRuleName = ((RuleRef*)currLabeledClause-> clause)->refdRuleName;
@@ -383,6 +385,7 @@ public:
                 auto refdRule = ruleNameToRule[lowestPrecRuleName.empty() ? refdRuleName : lowestPrecRuleName];
                 if (refdRule == nullptr) {
                     cout << "Unknown rule name: " + refdRuleName;
+                    abort();
                 }
                 currLabeledClause = refdRule->labeledClause;
             }
